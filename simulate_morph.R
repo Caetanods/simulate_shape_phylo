@@ -10,12 +10,13 @@
 
 library(geomorph)
 library(geiger)
+library(MASS)
 
 ## Get ancestral state.
 
 #digitize2d(filelist = "./Alestes.jpeg", nlandmarks = 24, scale = 10, tpsfile = "Alestes.tps")
 #dev.copy2pdf()
-anc <- readland.tps(file = "Alestes.tps") ## Load the tps data from file.
+anc <- readland.tps(file = "data/Alestes.tps") ## Load the tps data from file.
 #plotAllSpecimens(anc) ## Simple landmark plot.
 
 ## Simulate the tree:
@@ -26,4 +27,10 @@ mm <- anc
 col1 <- mm[,1,1]
 col2 <- mm[,2,1]
 
-sim.char(phy, 
+## Starting with the modified version of geiger 'sim.char':
+source("functions/sim_morph_functions.R")
+rr <- 
+mm <- diag(2.0, nrow = )
+res <- sim.geo.char(phy, par = mm, tps = anc, model = "BM")
+
+anc[,,1]
