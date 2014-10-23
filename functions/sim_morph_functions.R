@@ -44,8 +44,12 @@ sim.geo.char <- function (phy, par, tps, model = c("BM", "speciational"), nsim =
 	sp.sim <- lapply(1:nspecies, FUN = function(x) cbind(sim1[x,], sim2[x,]))
 	## Reduce is used to make matrix sum. sum BM changes to root states.
 	sp.sim <- lapply(sp.sim, FUN = function(x) Reduce('+', list(x, tps) ) )
-	names(sp.sim) <- phy$tip.label
+
+	## Create the output in the tps format for geomorph package.
+	result <- array( dim=c(nchar,2,nspecies) )
+	for(i in 1:nspecies)  rr[,,i] <- res[[i]]
+
+	row.names(result) <- phy$tip.label
 	
-	## This function returns a list of the tps for each species.
-	return(sp.sim)
+	return(result)
 }
