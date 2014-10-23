@@ -6,6 +6,7 @@ sim.geo.char <- function (phy, par, tps, model = c("BM", "speciational"), nsim =
 	## model = BM or speciational
 	## tps = the procrustres coordinates for the shape of the root.
 
+	## Known bugs: will break if nsim != 1.
 	## Things to include: return the shapes at the nodes.
 	## Things to expand: different rates for x and y coordinates (Ben's idea). Maybe elongated structures, for example, might evolves in different rates in one specific direction.
 
@@ -44,6 +45,7 @@ sim.geo.char <- function (phy, par, tps, model = c("BM", "speciational"), nsim =
 	## Reduce is used to make matrix sum. sum BM changes to root states.
 	sp.sim <- lapply(sp.sim, FUN = function(x) Reduce('+', list(x, tps) ) )
 	names(sp.sim) <- phy$tip.label
-
+	
+	## This function returns a list of the tps for each species.
 	return(sp.sim)
 }
