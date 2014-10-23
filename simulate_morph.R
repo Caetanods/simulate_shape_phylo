@@ -1,30 +1,35 @@
 ## Script to simulate morph in phylogeny.
-## Polly, 2004 and Adams 2014 series of papers does not use the coordinates to simulate form in a phylogeny.
-## Polly's method simulate in PC space, but use the direction of selection and the G matrix to make generations to generations simulations. This is very good for ecological time, but can be complicate for phylogenies.
-## Adams' method is only used to understand the rates of evolution. He does not simulate in PC space, but do a indepdendent points simulation to check the rates of the shape evolution under BM models.
+## Polly, 2004 and Adams 2014 series of papers does not use the coordinates to simulate shape in a phylogeny.
+## This is a simulation framework using multivariate normal distributions. Each step change of the BM model is draw from independent multivariate normal realizations. Covariance among structures can be achieved by using a vcv matrix.
+## Code is biuld upon packages 'geiger' and 'geomorph'.
 
-## What I want to do here is to do a 2D evolution of continuous characters.
-## In a first test, there will be no morphological integration.
-## Each coordinate will be treated as a independent point.
-## Will start with a known shape and see where the phylogeny goes without morphological integration.
-
+## Load packages>
 library(geomorph)
 library(geiger)
 library(MASS)
 
-## Get ancestral state.
+## Get tps coordinates for ancestral state.
 
 #digitize2d(filelist = "./Alestes.jpeg", nlandmarks = 24, scale = 10, tpsfile = "Alestes.tps")
-#dev.copy2pdf()
-anc <- readland.tps(file = "data/Alestes.tps") ## Load the tps data from file.
-#plotAllSpecimens(anc) ## Simple landmark plot.
+anc <- readland.tps(file = "data/Alestes.tps")
 
 ## Simulate the tree:
-phy <- sim.bdtree(stop = "taxa", n = 100)
+phy <- sim.bdtree(stop = "taxa", n = 10)
 phy <- rescale(phy, model = "depth", 1)
+plot(phy, direction = "upward"); axisPhylo(side = 2)
 
 ## Function to simulate shape:
 source("functions/sim_morph_functions.R")
 rr <- nrow(anc)
 mm <- diag(0.2, nrow = rr)
 res <- sim.geo.char(phy, par = mm, tps = anc[,,1], model = "BM")
+plotAllSpecimens(anc)
+
+
+
+
+
+
+
+
+
