@@ -5,11 +5,12 @@
 
 ## Load packages>
 library(geomorph)
+library(phytools)
 library(geiger)
 library(MASS)
 
-## Get tps coordinates for ancestral state.
-
+## Get tps coordinates for ancestral state:
+## tps data provided by Michael Burns (Michael.Burns at oregonstate dot edu)
 #digitize2d(filelist = "./Alestes.jpeg", nlandmarks = 24, scale = 10, tpsfile = "Alestes.tps")
 anc <- readland.tps(file = "data/Alestes.tps")
 
@@ -20,16 +21,19 @@ plot(phy, direction = "upward"); axisPhylo(side = 2)
 
 ## Function to simulate shape:
 source("functions/sim_morph_functions.R")
-rr <- nrow(anc)
-mm <- diag(0.2, nrow = rr)
-res <- sim.geo.char(phy, par = mm, tps = anc[,,1], model = "BM")
-plotAllSpecimens(anc)
 
+## Note that there is no covariance in this simulation.
+## The vcv matrix is a diagonal matrix.
+vcv <- diag(5.0, nrow = nrow(anc))
 
+## Make the simulation:
+res <- sim.geo.char(phy, par = vcv, tps = anc[,,1], model = "BM")
 
+## Plotting results:
+par(mfrow = c(1,2))
+plotGMPhyloMorphoSpace(phy, res, ancStates = FALSE) ## Does this use phyloPCA?
+plot(phy, direction = "upward"); axisPhylo(side = 2)
 
-
-
-
-
-
+## Plot difference in shape from root for one species:
+dev.new()
+plotRefToTarget(anc[,,1], res[,,i], method = "vector")
