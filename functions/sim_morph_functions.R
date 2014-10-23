@@ -47,9 +47,8 @@ sim.geo.char <- function (phy, par, tps, model = c("BM", "speciational"), nsim =
 
 	## Create the output in the tps format for geomorph package.
 	result <- array( dim=c(nchar,2,nspecies) )
-	for(i in 1:nspecies)  rr[,,i] <- res[[i]]
+	for(i in 1:nspecies)  result[,,i] <- sp.sim[[i]]
 
-	row.names(result) <- phy$tip.label
-	
+	dimnames(result)[[3]] <- phy$tip.label	
 	return(result)
 }
