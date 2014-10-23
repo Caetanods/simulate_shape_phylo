@@ -9,23 +9,23 @@ sim.geo.char <- function (phy, par, tps, model = c("BM", "speciational"), nsim =
 	## Known bugs: will break if nsim != 1.
 	## Things to include: return the shapes at the nodes.
 	## Things to expand: different rates for x and y coordinates (Ben's idea). Maybe elongated structures, for example, might evolves in different rates in one specific direction.
+	## Function need to work with vectors of selection. Now the change in the landmarks have random directions.
 
     model <- match.arg(model, c("BM", "speciational"))
     model.matrix <- geiger:::.make.modelmatrix(par, model)
     nbranches <- nrow(phy$edge)
     nspecies <- Ntip(phy)
 
-#    if (length(root) > 1) 
-#        stop("'root' should be a single value")
+	## Need to improve the data format test here.
+	## If user gives tps data in 'geomorph' format the error is uninformative.
     if (ncol(tps) != 2)
         stop("'tps' should be a 2-column matrix")
 
-		## m here is the C matrix from the phylogeny.
     m <- geiger:::.get.simulation.matrix(phy)
     if (model == "speciational") {
-        m[m > 0] <- 1 ## See? To get the speciational model you need to set branch lengths all equal to 1.
+        m[m > 0] <- 1
     }
-    ## nchar <- nrow(tps) * 2 ## Number of traits to be simulated. 2 = ncol(tps)
+
 	nchar <- nrow(tps)
 	## This will use the 'mvrnorm' function to simulate a vector of multivariate normal distributions all traits with mean 0 and varcovar matrix equal to the model.matrix (the matrix given as the par for the function).
     rnd1 <- mvrnorm(nsim * nbranches, mu = rep(0, nchar), Sigma = model.matrix)
@@ -46,6 +46,7 @@ sim.geo.char <- function (phy, par, tps, model = c("BM", "speciational"), nsim =
 	sp.sim <- lapply(sp.sim, FUN = function(x) Reduce('+', list(x, tps) ) )
 
 	## Create the output in the tps format for geomorph package.
+	## Output should be already in correct format here. Need improvement.
 	result <- array( dim=c(nchar,2,nspecies) )
 	for(i in 1:nspecies)  result[,,i] <- sp.sim[[i]]
 
