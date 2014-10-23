@@ -24,20 +24,26 @@ sim.geo.char <- function (phy, par, tps, model = c("BM", "speciational"), nsim =
     if (model == "speciational") {
         m[m > 0] <- 1 ## See? To get the speciational model you need to set branch lengths all equal to 1.
     }
-    nchar <- nrow(tps) * 2 ## Number of traits to be simulated. 2 = ncol(tps)
+    ## nchar <- nrow(tps) * 2 ## Number of traits to be simulated. 2 = ncol(tps)
+	nchar <- nrow(tps)
 	## This will use the 'mvrnorm' function to simulate a vector of multivariate normal distributions all traits with mean 0 and varcovar matrix equal to the model.matrix (the matrix given as the par for the function).
-    rnd <- t(mvrnorm(nsim * nbranches, mu = rep(0, nchar), Sigma = model.matrix))
+    rnd1 <- mvrnorm(nsim * nbranches, mu = rep(0, nchar), Sigma = model.matrix)
+	rnd2 <- mvrnorm(nsim * nbranches, mu = rep(0, nchar), Sigma = model.matrix)
 	## This vector will be used for the changes of the BM model on each branch.
-    rnd <- array(rnd, dim = c(nchar, nbranches, nsim))
+	rnd1 <- array(rnd1, dim = c(nchar, nbranches, nsim))
+	rnd2 <- array(rnd2, dim = c(nchar, nbranches, nsim))
 	## This is the simulation function. The product of the C matrix and the changes from the multivariate normal PLUS the value of the root. Then, we are changing (by addition) the value of the root (by a plus or a minus signal), proportional to the branch lenghts at each branch a time.
 	## This need to change because root is not a single value. However, I can sum the value to a root equal zero after all calculations are done.
-    simulate <- function(v) (m %*% as.matrix(v)) + 0 ## Root value fixed to 0
-    result <- apply(rnd, 1, simulate) ## Apply the 'simulate' over rows.
+    simulate <- function(v) (m %*% as.matrix(v)) ## Root value fixed to 0. Sum made at the end.
 
+	sim1 <- apply(rnd1, 1, simulate)
+	sim2 <- apply(rnd2, 1, simulate)
+	
+	## Create a list of simulated tps values for each species.
+	sp.sim <- lapply(1:nspecies, FUN = function(x) cbind(sim1[x,], sim2[x,]))
+	## Reduce is used to make matrix sum. sum BM changes to root states.
+	sp.sim <- lapply(sp.sim, FUN = function(x) Reduce('+', list(x, tps) ) )
+	names(sp.sim) <- phy$tip.label
 
-    result <- aperm(array(result, dim = c(nspecies, nsim, nchar)), c(1, 3, 2))
-	## aperm here is used to change the positions of indexes 3 and 2. (just like transpose).
-    rownames(result) <- phy$tip.label ## That is all!
- 	
-	return(result)
+	return(sp.sim)
 }
