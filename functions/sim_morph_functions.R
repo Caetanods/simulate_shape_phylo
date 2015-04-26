@@ -9,7 +9,7 @@ sim.geo.char <- function (phy, par, tps, model = c("BM", "speciational"), nsim =
 	## Known bugs: will break if nsim != 1.
 	## Things to include: return the shapes at the nodes.
 	## Things to expand: different rates for x and y coordinates (Ben's idea). Maybe elongated structures, for example, might evolves in different rates in one specific direction.
-	## Function need to work with vectors of selection. Now the change in the landmarks have random directions.
+	## Function need to work with vectors of selection. Now the change in the landmarks have random directions. Vectors of selection make it possible to have changes bias towards specific directions.
 
     model <- match.arg(model, c("BM", "speciational"))
     model.matrix <- geiger:::.make.modelmatrix(par, model)
